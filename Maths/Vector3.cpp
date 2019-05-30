@@ -3,14 +3,35 @@
 */
 
 #include "Vector3.hpp"
+#include "Vector4.hpp"
 #include <cmath>
 
 Vector3::Vector3(): 
 data(std::array<float, 3>{0, 0, 0})
 {}
 
-Vector3::Vector3(float x, float y, float z):
-data(std::array<float, 3>{x, y, z})
+template<typename T>
+Vector3::Vector3(T&& x, T&& y, T&& z):
+data(
+    {
+        std::forward<T>(x),
+        std::forward<T>(y),
+        std::forward<T>(z)
+    }
+)
+{}
+
+template Vector3::Vector3(float&&, float&&, float&&);
+template Vector3::Vector3(float&, float&, float&);
+
+Vector3::Vector3(const Vector4& vec4):
+data(
+    {
+        vec4.x(),
+        vec4.y(),
+        vec4.z()
+    }
+)
 {}
 
 Vector3 Vector3::operator+(const Vector3& rhs)
@@ -49,7 +70,7 @@ Vector3& Vector3::operator-=(const Vector3& rhs)
     return *this;
 }
 
-Vector3 Vector3::operator*(const float& scalar)
+Vector3 Vector3::operator*(const float& scalar) const
 {
     return Vector3(
         this->x() * scalar,
@@ -58,7 +79,7 @@ Vector3 Vector3::operator*(const float& scalar)
     );
 }
 
-Vector3 Vector3::operator/(const float& scalar)
+Vector3 Vector3::operator/(const float& scalar) const
 {
     return Vector3(
         this->x() / scalar,
@@ -142,6 +163,15 @@ std::ostream& operator<<(std::ostream& os, const Vector3& vec)
     vec.data[2] << ")";
 
     return os;
+}
+
+Vector3 operator*(const float& scalar, const Vector3& vec)
+{
+    return Vector3(
+        vec.data[0] * scalar,
+        vec.data[1] * scalar,
+        vec.data[2] * scalar
+    );
 }
 
 float dot(const Vector3& lhs, const Vector3& rhs)
